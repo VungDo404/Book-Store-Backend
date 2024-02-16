@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { FilesModule } from './files/files.module';
 import mongoose from 'mongoose';
 const mongoose_delete = require('mongoose-delete');
 @Module({
@@ -15,7 +16,7 @@ const mongoose_delete = require('mongoose-delete');
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        mongoose.plugin(mongoose_delete);
+        mongoose.plugin(mongoose_delete, { overrideMethods: true });
         return {
           uri: `${configService.get('DATABASE_URL')}`,
         }
@@ -23,6 +24,7 @@ const mongoose_delete = require('mongoose-delete');
       },
       inject: [ConfigService],
     }),
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

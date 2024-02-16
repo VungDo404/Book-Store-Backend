@@ -25,13 +25,14 @@ export class TransformInterceptor<T>
   ): Observable<Response<T>> {
     const ctx = context.switchToHttp();
     const response = ctx.getResponse<ExpressResponse>();
-    const responseMessage = this?.reflector?.get(Message, context.getHandler()) ?? '';
+    const responseMessage =
+      this?.reflector?.get(Message, context.getHandler()) ?? '';
     return next.handle().pipe(
       map((data) => ({
-        data,
         statusCode: response.statusCode,
+        message: responseMessage,
+        data,
         author: 'Do Thanh Vung',
-        message: responseMessage
       })),
     );
   }

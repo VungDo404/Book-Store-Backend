@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -15,22 +15,25 @@ export class UsersController {
   }
 
   @Get()
-  @Message('Get all users')
-  findAll() {
-    return this.usersService.findAll();
+  @Message('Get users with pagination')
+  findAll(@Query() query: string) {
+    return this.usersService.findAll(query);
   }
 
   @Get(':id')
+  @Message('Get the user by ID')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
+  @Message('Update the user')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
+  @Message('Delete the user')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
