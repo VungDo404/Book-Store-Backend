@@ -1,5 +1,8 @@
 import {
   Controller,
+  Delete,
+  Headers,
+  Param,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -20,5 +23,10 @@ export class FilesController {
     file: Express.Multer.File,
   ) {
     return this.filesService.uploadImage(file);
+  }
+  @Delete('upload/:fileName')
+  @Message('Delete an image')
+  deleteImage(@Param('fileName') fileName: string, @Headers('upload-type') uploadType: string) {
+    return this.filesService.deleteImage(fileName, uploadType);
   }
 }

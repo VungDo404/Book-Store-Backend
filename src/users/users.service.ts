@@ -22,6 +22,20 @@ export class UsersService {
     const hash = await bcrypt.hash(password, salt);
     return hash;
   }
+
+  async validateUser(email: string, pass: string): Promise<any> {
+    const user = await this.userModel
+      .findOne({ email }, null, { lean: true })
+      .exec();
+    if (user) {
+      const isMatch = await bcrypt.compare(pass, user.password);
+      if (isMatch) {
+        delete user.password;
+        return user;
+      }
+    }
+    return null;
+  }
   async create(createUserDto: CreateUserDto) {
     const count = await this.userModel
       .countDocuments({ email: createUserDto.email })
@@ -30,8 +44,12 @@ export class UsersService {
       throw new ConflictException('Email already exists');
     }
     const hash = await this.hashPassword(createUserDto.password);
-    const createdCat = new this.userModel({ ...createUserDto, password: hash });
-    return createdCat.save();
+    const createdUser = new this.userModel({
+      ...createUserDto,
+      password: hash,
+    });
+    const { password, ...rest } = (await createdUser.save()).toObject();
+    return rest;
   }
 
   async findAll(query: string) {
