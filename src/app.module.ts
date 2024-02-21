@@ -11,6 +11,8 @@ import { DatabaseModule } from './database/database.module';
 import { CartModule } from './cart/cart.module';
 import { AuthModule } from './auth/auth.module';
 import mongoose from 'mongoose';
+import { JwtAccessTokenAuthGuard } from './guard/jwt.access-token.guard';
+import { APP_GUARD } from '@nestjs/core';
 const mongoose_delete = require('mongoose-delete');
 @Module({
   imports: [
@@ -37,6 +39,9 @@ const mongoose_delete = require('mongoose-delete');
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, {
+    provide: APP_GUARD,
+    useClass: JwtAccessTokenAuthGuard,
+  },],
 })
 export class AppModule {}
