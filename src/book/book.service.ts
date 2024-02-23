@@ -1,32 +1,43 @@
-import { Injectable } from '@nestjs/common';
-import { CreateBookDto } from './dto/create-book.dto';
-import { UpdateBookDto } from './dto/update-book.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Book, BookDocument } from './schemas/book.schema';
-import { SoftDeleteModel } from 'mongoose-delete';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { CreateBookDto } from "./dto/create-book.dto";
+import { UpdateBookDto } from "./dto/update-book.dto";
+import { InjectModel } from "@nestjs/mongoose";
+import { Book, BookDocument } from "./schemas/book.schema";
+import { SoftDeleteModel } from "mongoose-delete";
+import mongoose from "mongoose";
+import { Pagination } from "@/shared/pagination";
 
 @Injectable()
-export class BookService {
-  constructor(
-    @InjectModel(Book.name) private bookModel: SoftDeleteModel<BookDocument>,
-  ) {}
-  create(createBookDto: CreateBookDto) {
-    return 'This action adds a new book';
-  }
+export class BookService extends Pagination<Book> {
+	constructor(
+		@InjectModel(Book.name)
+		private bookModel: SoftDeleteModel<BookDocument>,
+	) {
+		super(bookModel);
+	}
+	create(createBookDto: CreateBookDto) {
+		return new this.bookModel(createBookDto).save();
+	}
 
-  findAll() {
-    return `This action returns all book`;
-  }
+	findOne(id: string) {
+		return this.bookModel.findById(id).select("author").exec();
+	}
 
-  findOne(id: string) {
-    return `This action returns a #${id} book`;
-  }
+	category() {
+		return this.bookModel.find().select("category").exec();
+	}
 
-  update(id: string, updateBookDto: UpdateBookDto) {
-    return `This action updates a #${id} book`;
-  }
+	update(id: string, updateBookDto: UpdateBookDto) {
+		if (!mongoose.isValidObjectId(id)) {
+			throw new NotFoundException(`No book found with id ${id}`);
+		}
+		return this.bookModel.updateOne({ _id: id }, updateBookDto).exec();
+	}
 
-  remove(id: string) {
-    return `This action removes a #${id} book`;
-  }
+	remove(id: string) {
+		if (!mongoose.isValidObjectId(id)) {
+			throw new NotFoundException(`No book found with id ${id}`);
+		}
+		return this.bookModel.deleteById(id).exec();
+	}
 }

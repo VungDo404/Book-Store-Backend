@@ -10,14 +10,15 @@ import mongoose from "mongoose";
 import { User, UserDocument } from "./schemas/user.schema";
 import * as bcrypt from "bcrypt";
 import { SoftDeleteModel } from "mongoose-delete";
-import aqp from "api-query-params";
-
+import { Pagination } from "@/shared/pagination";
 @Injectable()
-export class UsersService {
+export class UsersService extends Pagination<User> {
 	constructor(
 		@InjectModel(User.name)
 		private userModel: SoftDeleteModel<UserDocument>,
-	) {}
+	) {
+		super(userModel);
+	}
 	async hashPassword(password: string) {
 		const salt = await bcrypt.genSalt();
 		const hash = await bcrypt.hash(password, salt);
@@ -52,36 +53,8 @@ export class UsersService {
 		return { _id: rest._id, fullName: rest.fullName, email: rest.email };
 	}
 
-	async findAll(query: string) {
-		const { limit, filter, sort } = aqp(query, {
-			limitKey: "pageSize",
-		});
-		const { current } = filter;
-		delete filter.current;
-		const total = await this.userModel.countDocuments(filter).exec();
-		const pages = Math.ceil(total / limit);
-		const result = await this.userModel
-			.find(filter)
-			.select("-password")
-			// @ts-ignore: Unreachable code error
-			.sort(sort ?? {})
-			.skip((<number>current - 1) * limit)
-			.limit(limit)
-			.exec();
-		const meta = {
-			current,
-			pageSize: limit,
-			pages,
-			total,
-		};
-		return { meta, result };
-	}
-
 	findOne(id: string) {
-		return this.userModel
-			.findById(id, { lean: 1 })
-			.select("-password")
-			.exec();
+		return this.userModel.findById(id).select("-password").exec();
 	}
 	findByRefreshToken(refreshToken: string) {
 		return this.userModel

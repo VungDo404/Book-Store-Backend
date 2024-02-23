@@ -14,7 +14,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Message } from '../decorators/message.decorator';
 import { Public } from '@/decorators/public.decorator';
 
-@Controller('users')
+@Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
