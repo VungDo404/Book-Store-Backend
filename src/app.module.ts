@@ -40,10 +40,10 @@ const mongoose_delete = require("mongoose-delete");
 	controllers: [AppController],
 	providers: [
 		AppService,
-		// {
-		// 	provide: APP_GUARD,
-		// 	useClass: JwtAccessTokenAuthGuard,
-		// },
+		{
+			provide: APP_GUARD,
+			useClass: JwtAccessTokenAuthGuard,
+		},
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({

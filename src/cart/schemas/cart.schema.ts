@@ -10,10 +10,10 @@ export class Cart {
   @Prop({ required: true })
   quantity: number;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   user: User;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Book' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Book', required: true })
   book: Book;
 }
 export const CartSchema = SchemaFactory.createForClass(Cart);

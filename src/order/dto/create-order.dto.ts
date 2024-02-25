@@ -2,7 +2,6 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsNumber,
-  IsPhoneNumber,
   IsPositive,
   IsString,
   ValidateNested,
@@ -18,7 +17,6 @@ export class CreateOrderDto {
   address: string;
 
   @IsString()
-  @IsPhoneNumber('VN')
   phone: string;
 
   @IsString()

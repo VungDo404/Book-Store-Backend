@@ -3,6 +3,7 @@ import { BookService } from './book.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Message } from '@/decorators/message.decorator';
+import { ObjectIdPipe } from '@/pipes/mongoId.pipe';
 
 @Controller('book')
 export class BookController {
@@ -22,19 +23,19 @@ export class BookController {
 
   @Get(':id')
   @Message('Get book by id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ObjectIdPipe) id: string) {
     return this.bookService.findOne(id);
   }
 
   @Put(':id')
   @Message('Update the book')
-  update(@Param('id') id: string, @Body() updateBookDto: UpdateBookDto) {
+  update(@Param('id', ObjectIdPipe) id: string, @Body() updateBookDto: UpdateBookDto) {
     return this.bookService.update(id, updateBookDto);
   }
 
   @Delete(':id')
   @Message('Delete the book')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ObjectIdPipe) id: string) {
     return this.bookService.remove(id);
   }
 }

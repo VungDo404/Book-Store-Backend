@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { SchemaClass, UpdateDto } from "@/interfaces/service.interface";
 import aqp from "api-query-params";
 import mongoose from "mongoose";
 import { SoftDeleteModel } from "mongoose-delete";
 
-@Injectable()
-export class Pagination<T = { new(...args: any[]): any }> {
+export class Service<T extends SchemaClass> {
+	selectValue: string;
 	constructor(
 		public model: SoftDeleteModel<
 			mongoose.Document<unknown, {}, T> &
@@ -14,16 +14,24 @@ export class Pagination<T = { new(...args: any[]): any }> {
 				}>,
 			{}
 		>,
-	) {}
+		selectValue: string = ""
+	) {
+		this.selectValue = selectValue; 
+	}
 	findAll = async (query: string) => {
-		const { limit = 10, filter, sort } = aqp(query, {
+		const {
+			limit = 20,
+			filter,
+			sort,
+		} = aqp(query, {
 			limitKey: "pageSize",
 		});
 		const { current = 1 } = filter;
 		delete filter.current;
 		const total = await this.model.countDocuments(filter).exec();
 		const pages = Math.ceil(total / limit);
-		const result = await this.model.find(filter)
+		const result = await this.model
+			.find(filter)
 			.select("-password")
 			// @ts-ignore: Unreachable code error
 			.sort(sort ?? {})
@@ -38,4 +46,13 @@ export class Pagination<T = { new(...args: any[]): any }> {
 		};
 		return { meta, result };
 	};
+	remove(id: string) {
+		return this.model.deleteById(id).exec();
+	}
+	update(id: string, updateDto: UpdateDto) {
+		return this.model.updateOne({ _id: id }, updateDto).exec();
+	}
+	findOne(id: string) {
+		return this.model.findById(id).select(this.selectValue).exec();
+	}
 }

@@ -4,20 +4,19 @@ import {
 	NotFoundException,
 } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import mongoose from "mongoose";
 import { User, UserDocument } from "./schemas/user.schema";
 import * as bcrypt from "bcrypt";
 import { SoftDeleteModel } from "mongoose-delete";
-import { Pagination } from "@/shared/pagination";
+import { Service } from "@/shared/service";
 @Injectable()
-export class UsersService extends Pagination<User> {
+export class UsersService extends Service<User> {
 	constructor(
 		@InjectModel(User.name)
 		private userModel: SoftDeleteModel<UserDocument>,
 	) {
-		super(userModel);
+		super(userModel, "-password");
 	}
 	async hashPassword(password: string) {
 		const salt = await bcrypt.genSalt();
@@ -37,7 +36,7 @@ export class UsersService extends Pagination<User> {
 		}
 		return null;
 	}
-	async create(createUserDto: CreateUserDto) {
+	async createUser(createUserDto: CreateUserDto) {
 		const count = await this.userModel
 			.countDocuments({ email: createUserDto.email })
 			.exec();
@@ -53,27 +52,11 @@ export class UsersService extends Pagination<User> {
 		return { _id: rest._id, fullName: rest.fullName, email: rest.email };
 	}
 
-	findOne(id: string) {
-		return this.userModel.findById(id).select("-password").exec();
-	}
 	findByRefreshToken(refreshToken: string) {
 		return this.userModel
 			.findOne({ refreshToken }, { lean: 1 })
 			.select("-password")
 			.exec();
-	}
-	update(id: string, updateUserDto: UpdateUserDto) {
-		if (!mongoose.isValidObjectId(id)) {
-			throw new NotFoundException(`No user found with id ${id}`);
-		}
-		return this.userModel.updateOne({ _id: id }, updateUserDto).exec();
-	}
-
-	remove(id: string) {
-		if (!mongoose.isValidObjectId(id)) {
-			throw new NotFoundException(`No user found with id ${id}`);
-		}
-		return this.userModel.deleteById(id).exec();
 	}
 
 	updateRefreshToken(id: string, refreshToken: string) {

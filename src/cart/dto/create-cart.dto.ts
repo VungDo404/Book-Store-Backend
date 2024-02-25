@@ -7,8 +7,5 @@ export class CreateCartDto {
   quantity: number;
 
   @IsMongoId()
-  user: mongoose.Schema.Types.ObjectId;
-
-  @IsMongoId()
   book: mongoose.Schema.Types.ObjectId;
 }

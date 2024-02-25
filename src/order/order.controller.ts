@@ -1,34 +1,43 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { Message } from '@/decorators/message.decorator';
+import { ObjectIdPipe } from '@/pipes/mongoId.pipe';
+import { User } from '@/decorators/user.decorator';
+import { FetchAccount } from '@/interfaces/user.interface';
 
 @Controller('order')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.create(createOrderDto);
+  @Message('Create an order')
+  create(@Body() createOrderDto: CreateOrderDto, @User() user: FetchAccount) {
+    return this.orderService.create(createOrderDto, user._id.toString());
   }
 
   @Get()
-  findAll() {
-    return this.orderService.findAll();
+  @Message('Get orders with pagination')
+  findAll(@Query() query: string) {
+    return this.orderService.findAll(query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+  @Message('Get a user by id')
+  findOne(@Param('id', ObjectIdPipe) id: string) {
+    return this.orderService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
+  @Message('Update a user by id')
+  update(@Param('id', ObjectIdPipe) id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    return this.orderService.update(id, updateOrderDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
+  @Message('Delete a user by id')
+  remove(@Param('id', ObjectIdPipe) id: string) {
+    return this.orderService.remove(id);
   }
 }

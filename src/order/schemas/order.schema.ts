@@ -1,4 +1,5 @@
 import { Book } from '@/book/schemas/book.schema';
+import { User } from '@/users/schemas/user.schema';
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 
@@ -34,5 +35,8 @@ export class Order {
 
   @Prop({ required: true })
   totalPrice: number;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: User;
 }
 export const OrderSchema = SchemaFactory.createForClass(Order);
