@@ -35,7 +35,7 @@ export class CartService {
 	}
 
 	findAll(userId: string) {
-		return this.cartModel.find({user: userId}).exec();
+		return this.cartModel.find({user: userId}, '-user').populate('book').exec();
 	}
 
 	findOne(id: number) {

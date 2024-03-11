@@ -10,8 +10,10 @@ import { User, UserDocument } from "./schemas/user.schema";
 import * as bcrypt from "bcrypt";
 import { SoftDeleteModel } from "mongoose-delete";
 import { Service } from "@/shared/service";
+import { NewPasswordDto } from "./dto/new-password.dto";
 @Injectable()
 export class UsersService extends Service<User> {
+	readonly defaultPassword: string = "123456";
 	constructor(
 		@InjectModel(User.name)
 		private userModel: SoftDeleteModel<UserDocument>,
@@ -24,9 +26,7 @@ export class UsersService extends Service<User> {
 		return hash;
 	}
 	async validateUser(email: string, pass: string): Promise<any> {
-		const user = await this.userModel
-			.findOne({ email }, null, { lean: true })
-			.exec();
+		const user = await this.userModel.findOne({ email }).exec();
 		if (user) {
 			const isMatch = await bcrypt.compare(pass, user.password);
 			if (isMatch) {
@@ -52,6 +52,27 @@ export class UsersService extends Service<User> {
 		return { _id: rest._id, fullName: rest.fullName, email: rest.email };
 	}
 
+	async bulkCreateUser(createUserDto: CreateUserDto[]) {
+		const validUsers = [];
+		for (const user of createUserDto) {
+			const existingUser = await this.userModel.findOne({
+				email: user.email,
+			});
+			if (!existingUser)
+				validUsers.push({
+					...user,
+					password: await this.hashPassword(user.password),
+				});
+		}
+		const res = await this.userModel.insertMany(validUsers);
+
+		return {
+			countSuccess: res.length,
+			countError: createUserDto.length - res.length,
+			message: null,
+		};
+	}
+
 	findByRefreshToken(refreshToken: string) {
 		return this.userModel
 			.findOne({ refreshToken }, { lean: 1 })
@@ -64,5 +85,66 @@ export class UsersService extends Service<User> {
 			throw new NotFoundException(`No user found with id ${id}`);
 		}
 		return this.userModel.updateOne({ _id: id }, { refreshToken }).exec();
+	}
+
+	async newPassword(newPasswordDto: NewPasswordDto) {
+		const userInfo = this.validateUser(
+			newPasswordDto.email,
+			newPasswordDto.oldpass,
+		);
+		if (userInfo) {
+			this.userModel
+				.updateOne(
+					{ email: newPasswordDto.email },
+					{
+						password: await this.hashPassword(
+							newPasswordDto.newpass,
+						),
+					},
+				)
+				.exec();
+			return "";
+		}
+		throw new NotFoundException(
+			`The user with email ${newPasswordDto.email} does not exist`,
+		);
+	}
+
+	async seeding(): Promise<boolean> {
+		const count = await this.userModel.countDocuments();
+		if (!count) {
+			await this.userModel.insertMany([
+				{
+					fullName: "ADMIN",
+					password: await this.hashPassword(this.defaultPassword),
+					email: "admin@gmail.com",
+					phone: "0123456789",
+					role: "ADMIN",
+					avatar: "",
+				},
+				{
+					fullName: "User",
+					password: await this.hashPassword(this.defaultPassword),
+					email: "user@gmail.com",
+					phone: "0123456789",
+					role: "USER",
+					avatar: "",
+				},
+				{
+					fullName: "TESTING",
+					password: await this.hashPassword(this.defaultPassword),
+					email: "testing@gmail.com",
+					phone: "0123456789",
+					role: "USER",
+					avatar: "",
+				},
+			]);
+			return true; 
+		}
+		return false; 
+	}
+
+	async getCount(): Promise<number>{
+		return this.userModel.countDocuments();
 	}
 }

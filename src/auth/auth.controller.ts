@@ -3,7 +3,6 @@ import {
 	Controller,
 	Get,
 	Post,
-	Request,
 	Response,
 	UseGuards,
 } from "@nestjs/common";
@@ -11,12 +10,11 @@ import { AuthGuard } from "@nestjs/passport";
 import { AuthService } from "./auth.service";
 import {
 	Response as ExpressResponse,
-	Request as ExpressRequest,
 } from "express";
 import { Public } from "@/decorators/public.decorator";
 import { User } from "@/decorators/user.decorator";
-import { FetchAccount } from "@/interfaces/user.interface";
 import { Cookies } from "@/decorators/cookie.decorator";
+import { AccountDto } from "./dto/account.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -27,15 +25,15 @@ export class AuthController {
 	@Message("Log in")
 	@Post("login")
 	async login(
-		@Request() req: ExpressRequest,
+		@User() user: AccountDto,
 		@Response({ passthrough: true }) response: ExpressResponse,
 	) {
-		return this.authService.login(req.user as FetchAccount, response);
+		return this.authService.login(user, response);
 	}
 
 	@Message("Fetch current account")
 	@Get("account")
-	async account(@User() user: FetchAccount) {
+	async account(@User() user: AccountDto) {
 		return { user };
 	}
 
@@ -51,11 +49,11 @@ export class AuthController {
 
 	@Public()
 	@Message("Log out")
-	@Get("log out")
+	@Post("logout")
 	async logout(
-		@User() user: FetchAccount,
+		@User() user: AccountDto,
 		@Response({ passthrough: true }) response: ExpressResponse,
 	) {
-		return this.authService.logout(user._id.toString(), response);
+		return this.authService.logout(user._id, response);
 	}
 }

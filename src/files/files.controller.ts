@@ -17,13 +17,14 @@ export class FilesController {
 
   @Post('upload')
   @Message('Upload an image')
-  @UseInterceptors(FileInterceptor('file', multerOptions))
+  @UseInterceptors(FileInterceptor('fileImg', multerOptions))
   uploadFileImage(
     @UploadedFile()
     file: Express.Multer.File,
   ) {
     return this.filesService.uploadImage(file);
   }
+
   @Delete('upload/:fileName')
   @Message('Delete an image')
   deleteImage(@Param('fileName') fileName: string, @Headers('upload-type') uploadType: string) {

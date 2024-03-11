@@ -3,7 +3,7 @@ import aqp from "api-query-params";
 import mongoose from "mongoose";
 import { SoftDeleteModel } from "mongoose-delete";
 
-export class Service<T extends SchemaClass> {
+export abstract class Service<T extends SchemaClass> {
 	selectValue: string;
 	constructor(
 		public model: SoftDeleteModel<
@@ -53,6 +53,6 @@ export class Service<T extends SchemaClass> {
 		return this.model.updateOne({ _id: id }, updateDto).exec();
 	}
 	findOne(id: string) {
-		return this.model.findById(id).select(this.selectValue).exec();
+		return this.model.findById(id, this.selectValue).exec();
 	}
 }

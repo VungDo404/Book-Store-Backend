@@ -3,7 +3,6 @@ import {
 	RefreshTokenPayload,
 	RefreshTokenPayloadDecode,
 } from "@/interfaces/auth.interface";
-import { FetchAccount } from "@/interfaces/user.interface";
 import { User } from "@/users/schemas/user.schema";
 import { UsersService } from "@/users/users.service";
 import {
@@ -16,6 +15,7 @@ import { JwtService } from "@nestjs/jwt";
 import { Response } from "express";
 import { Document, Types } from "mongoose";
 import ms from "ms";
+import { AccountDto } from "./dto/account.dto";
 
 @Injectable()
 export class AuthService {
@@ -27,7 +27,7 @@ export class AuthService {
 
 	issueAccessToken(
 		user:
-			| FetchAccount
+			| AccountDto
 			| (Document<unknown, {}, User> &
 					User &
 					Required<{
@@ -52,7 +52,7 @@ export class AuthService {
 		payload: RefreshTokenPayload,
 		expiresIn: number,
 		user:
-			| FetchAccount
+			| AccountDto
 			| (Document<unknown, {}, User> &
 					User &
 					Required<{
@@ -73,7 +73,7 @@ export class AuthService {
 			),
 		});
 	}
-	login(user: FetchAccount, response: Response) {
+	login(user: AccountDto, response: Response) {
 		const refreshPayload: RefreshTokenPayload = {
 			_id: user._id,
 			fullName: user.fullName,

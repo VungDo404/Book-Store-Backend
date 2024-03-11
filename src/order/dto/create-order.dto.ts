@@ -1,14 +1,23 @@
 import {
   ArrayNotEmpty,
   IsArray,
+  IsMongoId,
   IsNumber,
   IsPositive,
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Detail } from '../schemas/order.schema';
 import { Type } from 'class-transformer';
+import mongoose from 'mongoose';
 
+class DetailDto{
+  @IsString()
+  bookName: string;
+  @IsNumber()
+  quantity: number;
+  @IsMongoId()
+  _id: mongoose.Schema.Types.ObjectId | string;
+}
 export class CreateOrderDto {
   @IsString()
   name: string;
@@ -23,10 +32,10 @@ export class CreateOrderDto {
   type: string;
 
   @IsArray()
-  @ValidateNested({ each: true })
   @ArrayNotEmpty()
-  @Type(() => Detail)
-  detail: Detail[];
+  @ValidateNested({ each: true })
+  @Type(() => DetailDto)
+  detail: DetailDto[];
 
   @IsNumber()
   @IsPositive()

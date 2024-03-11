@@ -18,9 +18,12 @@ export class CreateUserDto {
   phone: string;
 
   @IsString()
-  role: string;
+  @IsOptional()
+  role: string = 'USER';
 
   @IsString()
   @IsOptional()
-  avatar: string;
+  avatar: string = '';
 }
+
+
