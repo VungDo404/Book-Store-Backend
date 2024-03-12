@@ -120,7 +120,7 @@ export class UsersService extends Service<User> {
 					email: "admin@gmail.com",
 					phone: "0123456789",
 					role: "ADMIN",
-					avatar: "",
+					avatar: "21232f297a57a5a743894a0e4a801fc3-1710227641511.png",
 				},
 				{
 					fullName: "User",
@@ -128,7 +128,7 @@ export class UsersService extends Service<User> {
 					email: "user@gmail.com",
 					phone: "0123456789",
 					role: "USER",
-					avatar: "",
+					avatar: "ee11cbb19052e40b07aac0ca060c23ee-1710227672382",
 				},
 				{
 					fullName: "TESTING",
@@ -136,7 +136,7 @@ export class UsersService extends Service<User> {
 					email: "testing@gmail.com",
 					phone: "0123456789",
 					role: "USER",
-					avatar: "",
+					avatar: "download-14edf5f985c9efbeafdba108ab63709a3-1710227692167.png",
 				},
 			]);
 			return true; 
