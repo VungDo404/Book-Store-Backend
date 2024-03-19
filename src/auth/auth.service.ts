@@ -100,9 +100,9 @@ export class AuthService {
 						secret: this.configService.get("REFRESH_TOKEN_SECRET"),
 					},
 				);
-			const user = (
-				await this.usersService.findByRefreshToken(refresh_token)
-			).toObject();
+			const res =
+				await this.usersService.findByRefreshToken(refresh_token);
+			const user = res ? res.toObject() : null;
 			if (!user) {
 				throw new NotFoundException(
 					"NOT FOUND USER WITH GIVEN REFRESH TOKEN",
@@ -117,6 +117,7 @@ export class AuthService {
 			);
 			return {
 				access_token: this.issueAccessToken(user),
+				user,
 			};
 		} catch (error) {
 			if (error?.name === "TokenExpiredError")
@@ -124,7 +125,10 @@ export class AuthService {
 		}
 	}
 	logout(id: string, response: Response) {
-		response.clearCookie("refresh_token", { httpOnly: true });
+		response.clearCookie("refresh_token", {
+			path: "/",
+			httpOnly: true,
+		});
 		this.usersService.updateRefreshToken(id, "");
 		return "Log out successfully";
 	}

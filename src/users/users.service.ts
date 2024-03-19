@@ -11,6 +11,7 @@ import * as bcrypt from "bcrypt";
 import { SoftDeleteModel } from "mongoose-delete";
 import { Service } from "@/shared/service";
 import { NewPasswordDto } from "./dto/new-password.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
 @Injectable()
 export class UsersService extends Service<User> {
 	readonly defaultPassword: string = "123456";
@@ -75,7 +76,7 @@ export class UsersService extends Service<User> {
 
 	findByRefreshToken(refreshToken: string) {
 		return this.userModel
-			.findOne({ refreshToken }, { lean: 1 })
+			.findOne({ refreshToken }, '_id fullName phone email role avatar')
 			.select("-password")
 			.exec();
 	}
@@ -139,12 +140,15 @@ export class UsersService extends Service<User> {
 					avatar: "download-14edf5f985c9efbeafdba108ab63709a3-1710227692167.png",
 				},
 			]);
-			return true; 
+			return true;
 		}
-		return false; 
+		return false;
 	}
-
-	async getCount(): Promise<number>{
+	async getCount(): Promise<number> {
 		return this.userModel.countDocuments();
+	}
+	update(updateDto: UpdateUserDto) {
+		const {_id, ...rest} = updateDto; 
+		return this.model.updateOne({ _id }, rest).exec();
 	}
 }

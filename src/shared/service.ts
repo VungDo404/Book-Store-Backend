@@ -49,9 +49,6 @@ export abstract class Service<T extends SchemaClass> {
 	remove(id: string) {
 		return this.model.deleteById(id).exec();
 	}
-	update(id: string, updateDto: UpdateDto) {
-		return this.model.updateOne({ _id: id }, updateDto).exec();
-	}
 	findOne(id: string) {
 		return this.model.findById(id, this.selectValue).exec();
 	}

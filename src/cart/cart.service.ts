@@ -4,6 +4,8 @@ import { UpdateCartDto } from "./dto/update-cart.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Cart, CartDocument } from "./schemas/cart.schema";
 import { SoftDeleteModel } from "mongoose-delete";
+import { BulkDeleteCartDto } from "./dto/bulk-delete-cart.dto";
+import { AccountDto } from "@/auth/dto/account.dto";
 
 @Injectable()
 export class CartService {
@@ -35,7 +37,11 @@ export class CartService {
 	}
 
 	findAll(userId: string) {
-		return this.cartModel.find({user: userId}, '-user').populate('book').exec();
+		return this.cartModel
+			.find({ user: userId }, "_id quantity")
+			.sort("createdAt")
+			.populate("book", "_id thumbnail mainText price")
+			.exec();
 	}
 
 	findOne(id: number) {
@@ -45,7 +51,7 @@ export class CartService {
 	update(id: string, updateCartDto: UpdateCartDto, userId: string) {
 		return this.cartModel
 			.updateOne(
-				{_id: id, user: userId},
+				{ _id: id, user: userId },
 				{ quantity: updateCartDto.quantity },
 			)
 			.exec();
@@ -53,5 +59,8 @@ export class CartService {
 
 	remove(id: string) {
 		return this.cartModel.deleteById(id).exec();
+	}
+	bulkDelete(id: string[], user: AccountDto) {
+		return this.cartModel.deleteMany({ user: user._id, _id: { $in: id } });
 	}
 }

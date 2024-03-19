@@ -47,7 +47,6 @@ export class AuthController {
 		return this.authService.refresh(refresh_token, response);
 	}
 
-	@Public()
 	@Message("Log out")
 	@Post("logout")
 	async logout(

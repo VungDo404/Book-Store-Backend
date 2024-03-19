@@ -61,13 +61,12 @@ export class UsersController {
 		return this.usersService.findOne(id);
 	}
 
-	@Put(":id")
+	@Put()
 	@Message("Update the user")
 	update(
-		@Param("id", ObjectIdPipe) id: string,
 		@Body() updateUserDto: UpdateUserDto,
 	) {
-		return this.usersService.update(id, updateUserDto);
+		return this.usersService.update(updateUserDto);
 	}
 
 	@Delete(":id")
@@ -75,4 +74,5 @@ export class UsersController {
 	remove(@Param("id", ObjectIdPipe) id: string) {
 		return this.usersService.remove(id);
 	}
+	
 }

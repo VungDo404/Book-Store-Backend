@@ -23,7 +23,11 @@ const mongoose_delete = require("mongoose-delete");
 		MongooseModule.forRootAsync({
 			imports: [ConfigModule],
 			useFactory: (configService: ConfigService) => {
-				mongoose.plugin(mongoose_delete, { overrideMethods: true });
+				mongoose.plugin(mongoose_delete, {
+					overrideMethods: true,
+					indexFields: ['deletedAt'], 
+					deletedAt: true,     
+				});
 				return {
 					uri: `${configService.get("DATABASE_URL")}`,
 				};
@@ -44,13 +48,13 @@ const mongoose_delete = require("mongoose-delete");
 			provide: APP_GUARD,
 			useClass: JwtAccessTokenAuthGuard,
 		},
-    {
-      provide: APP_PIPE,
-      useValue: new ValidationPipe({
-        transform: true,
-        transformOptions: { enableImplicitConversion: true },
-      }),
-    },
+		{
+			provide: APP_PIPE,
+			useValue: new ValidationPipe({
+				transform: true,
+				transformOptions: { enableImplicitConversion: true },
+			}),
+		},
 	],
 })
 export class AppModule {}

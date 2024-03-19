@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException,
+} from "@nestjs/common";
 import { CreateBookDto } from "./dto/create-book.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Book, BookDocument } from "./schemas/book.schema";
@@ -6,6 +10,7 @@ import { SoftDeleteModel } from "mongoose-delete";
 import { Service } from "@/shared/service";
 import { ObjectId } from "mongoose";
 import { BOOK_SEEDING } from "./book.seeding";
+import { UpdateBookDto } from "./dto/update-book.dto";
 
 @Injectable()
 export class BookService extends Service<Book> {
@@ -29,7 +34,12 @@ export class BookService extends Service<Book> {
 		return new this.bookModel(createBookDto).save();
 	}
 	async updateBookQuantity(_id: string | ObjectId, quantity: number) {
-		const bookDetail = (await this.bookModel.findById(_id)).toObject();
+		const res  = (await this.bookModel.findById(_id));
+		const bookDetail = res ? res.toObject() : null; 
+		if (!bookDetail)
+			throw new NotFoundException(
+				"Cannot found the book with given book id"
+			);
 		if (bookDetail.quantity > quantity) {
 			await this.bookModel.updateOne(
 				{ _id },
@@ -48,7 +58,10 @@ export class BookService extends Service<Book> {
 		}
 		return false;
 	}
-	async getCount(): Promise<number>{
+	async getCount(): Promise<number> {
 		return this.bookModel.countDocuments();
+	}
+	update(id: string, updateDto: UpdateBookDto) {
+		return this.model.updateOne({ _id: id }, updateDto).exec();
 	}
 }

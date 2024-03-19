@@ -1,5 +1,3 @@
-import { Cart } from "@/cart/schemas/cart.schema";
-import { Order } from "@/order/schemas/order.schema";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 

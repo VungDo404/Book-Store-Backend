@@ -2,7 +2,7 @@
 export const BOOK_SEEDING = [
 	{
 		thumbnail: "3906ba38596be869209e10a4a676982c-1710170041178.jpg",
-		slider: [''],
+		slider: [],
 		mainText: "Tiền Đẻ Ra Tiền: Đầu Tư Tài Chính Thông Minh",
 		author: "Ducan Bannatyne",
 		price: 80000,
@@ -42,7 +42,7 @@ export const BOOK_SEEDING = [
 	},
     {
 		thumbnail: "9d081ae008c8c7f26ea105be82674d52-1710170730340.jpg",
-		slider: [""],
+		slider: [],
 		mainText: "Tư Duy Về Tiền Bạc - Những Lựa Chọn Tài Chính Đúng Đắn Và Sáng Suốt Hơn",
 		author: "Jonathan Clements",
 		price: 70000,
