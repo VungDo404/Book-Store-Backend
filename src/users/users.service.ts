@@ -26,8 +26,11 @@ export class UsersService extends Service<User> {
 		const hash = await bcrypt.hash(password, salt);
 		return hash;
 	}
+	findByEmail(email: string){
+		return this.userModel.findOne({ email }).exec();
+	}
 	async validateUser(email: string, pass: string): Promise<any> {
-		const user = await this.userModel.findOne({ email }).exec();
+		const user = await this.findByEmail(email);
 		if (user) {
 			const isMatch = await bcrypt.compare(pass, user.password);
 			if (isMatch) {
@@ -37,10 +40,11 @@ export class UsersService extends Service<User> {
 		}
 		return null;
 	}
+	countByEmail(email: string) {
+		return this.userModel.countDocuments({ email }).exec();
+	}
 	async createUser(createUserDto: CreateUserDto) {
-		const count = await this.userModel
-			.countDocuments({ email: createUserDto.email })
-			.exec();
+		const count = await this.countByEmail(createUserDto.email);
 		if (count >= 1) {
 			throw new ConflictException("Email already exists");
 		}
@@ -49,8 +53,7 @@ export class UsersService extends Service<User> {
 			...createUserDto,
 			password: hash,
 		});
-		const { password, ...rest } = (await createdUser.save()).toObject();
-		return { _id: rest._id, fullName: rest.fullName, email: rest.email };
+		return createdUser.save();
 	}
 
 	async bulkCreateUser(createUserDto: CreateUserDto[]) {
@@ -76,7 +79,7 @@ export class UsersService extends Service<User> {
 
 	findByRefreshToken(refreshToken: string) {
 		return this.userModel
-			.findOne({ refreshToken }, '_id fullName phone email role avatar')
+			.findOne({ refreshToken }, "_id fullName phone email role avatar")
 			.select("-password")
 			.exec();
 	}
@@ -148,7 +151,7 @@ export class UsersService extends Service<User> {
 		return this.userModel.countDocuments();
 	}
 	update(updateDto: UpdateUserDto) {
-		const {_id, ...rest} = updateDto; 
+		const { _id, ...rest } = updateDto;
 		return this.model.updateOne({ _id }, rest).exec();
 	}
 }

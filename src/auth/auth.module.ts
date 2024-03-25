@@ -6,6 +6,7 @@ import { UsersModule } from '@/users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategyAccessToken } from './strategies/jwt.access-token.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { JwtStrategyAccessToken } from './strategies/jwt.access-token.strategy';
     JwtModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategyAccessToken],
+  providers: [AuthService, LocalStrategy, JwtStrategyAccessToken, GoogleStrategy],
 })
 export class AuthModule {}

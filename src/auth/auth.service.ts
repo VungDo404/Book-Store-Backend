@@ -1,5 +1,6 @@
 import {
 	AccessTokenPayload,
+	GoogleOAuth,
 	RefreshTokenPayload,
 	RefreshTokenPayloadDecode,
 } from "@/interfaces/auth.interface";
@@ -12,7 +13,7 @@ import {
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { Document, Types } from "mongoose";
 import ms from "ms";
 import { AccountDto } from "./dto/account.dto";
@@ -131,5 +132,39 @@ export class AuthService {
 		});
 		this.usersService.updateRefreshToken(id, "");
 		return "Log out successfully";
+	}
+	async googleLogin(req: Request, response: Response) {
+		if (!req.user) {
+			throw new NotFoundException("Google account not found");
+		}
+		try {
+			const payload = req.user as GoogleOAuth;
+			let user = await this.usersService.findByEmail(payload.email);
+
+			if (!user) {
+				user = await this.usersService.createUser({
+					fullName: payload.displayName,
+					password: this.usersService.defaultPassword,
+					email: payload.email,
+					role: "USER",
+					phone: "",
+					avatar: "",
+				});
+			}
+			const account = {
+				_id: user._id.toString(),
+				email: user.email,
+				fullName: user.fullName,
+				role: user.role,
+				avatar: user.avatar,
+				phone: user.phone,
+			};
+			await this.login(account, response);
+			response.send('<script>window.close()</script>');
+			response.end();
+		} catch (err) {
+			console.log(err);
+			
+		}
 	}
 }
