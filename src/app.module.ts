@@ -19,6 +19,7 @@ const mongoose_delete = require("mongoose-delete");
 		UsersModule,
 		ConfigModule.forRoot({
 			isGlobal: true,
+			envFilePath: ['.env', '.env.development']
 		}),
 		MongooseModule.forRootAsync({
 			imports: [ConfigModule],
