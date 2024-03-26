@@ -14,7 +14,7 @@ export class OrderController {
   @Post()
   @Message('Create an order')
   create(@Body() createOrderDto: CreateOrderDto, @User() user: AccountDto) {
-    return this.orderService.create(createOrderDto, user._id);
+    return this.orderService.create(createOrderDto, user);
   }
 
   @Get()
