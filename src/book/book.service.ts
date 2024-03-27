@@ -22,23 +22,22 @@ export class BookService extends Service<Book> {
 	}
 	category() {
 		return this.bookModel
-			.find()
-			.select("category -_id")
+			.distinct("category")
 			.sort({ category: 1 })
 			.exec()
 			.then((categories) => {
-				return categories.map((category) => category.category);
+				return categories;
 			});
 	}
 	create(createBookDto: CreateBookDto) {
 		return new this.bookModel(createBookDto).save();
 	}
 	async updateBookQuantity(_id: string | ObjectId, quantity: number) {
-		const res  = (await this.bookModel.findById(_id));
-		const bookDetail = res ? res.toObject() : null; 
+		const res = await this.bookModel.findById(_id);
+		const bookDetail = res ? res.toObject() : null;
 		if (!bookDetail)
 			throw new NotFoundException(
-				"Cannot found the book with given book id"
+				"Cannot found the book with given book id",
 			);
 		if (bookDetail.quantity > quantity) {
 			await this.bookModel.updateOne(
